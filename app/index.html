@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>TSA Claim Data - 2010 - 2013</title>
+  <meta name="description" content="Interactive views of consolidated TSA claim data from year 2010 through year 2013">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- angular seed styles -->
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
+
+  <!-- app styles -->
+  <link rel="stylesheet" href="app.css">
+
+  <!-- js pre-load -->
+  <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.min.js"></script>
+
+  <!-- spectre css -->
+  <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+</head>
+<body>    
+  <div class="container">
+
+    <!-- tab group -->
+    <ul class="tab tab-block">
+      <li class="tab-item active">
+        <a href="#" id="yr2010">2010</a>
+      </li>
+      <li class="tab-item">
+        <a href="#" id="yr2011">2011</a>
+      </li>
+      <li class="tab-item">
+        <a href="#" id="yr2012">2012</a>
+      </li>
+      <li class="tab-item">
+        <a href="#" id="yr2013">2013</a>
+      </li>
+    </ul>
+
+    <!-- views -->
+    <div class="columns">
+      <!-- value lost per month -->
+      <div class="column col-12">
+        <div class="panel">
+          <div class="panel-header centered">
+            <div class="panel-title">Value Lost Per Month</div>
+          </div>
+          <div class="panel-body centered">
+            <p>table goes here</p>
+          </div>
+          <div class="panel-footer centered">
+            <select id="airlineSelect">
+              <option>Choose an airline</option>
+              <option>AIRLINE NAME</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- average claim per airport -->
+      <div class="column col-12">
+        <div class="panel">
+          <div class="panel-header centered">
+            <div class="panel-title">Average Claim Amount Per Month</div>
+          </div>
+          <div class="panel-body centered">
+            <p>table goes here</p>
+          </div>
+          <div class="panel-footer centered">
+            <select id="airportSelect">
+              <option>Choose an airport</option>
+              <option>AIRPORT NAMES</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+  <!-- In production use:
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+  -->
+
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="app.js"></script>
+  <script src="view1/view1.js"></script>
+  <script src="view2/view2.js"></script>
+  <script src="components/version/version.js"></script>
+  <script src="components/version/version-directive.js"></script>
+  <script src="components/version/interpolate-filter.js"></script>
+</body>
+</html>
