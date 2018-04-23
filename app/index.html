@@ -20,6 +20,7 @@
   <!-- js pre-load -->
   <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.min.js"></script>
+  <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
   <!-- spectre css -->
   <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
@@ -84,6 +85,9 @@
       </div>
     </div>
 
+    <br />
+    <button class="btn btn-primary centered" onclick="parseData();">&nbsp;click here&nbsp;</button>
+
   </div>
 
   <!--[if lt IE 7]>
@@ -102,6 +106,21 @@
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
-
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $.ajax({
+        type: "GET",
+        url: "claims-2010-2013_0.csv",
+        dataType: "text",
+        success: function(file){
+          Papa.parse(file, {
+            complete: function(results) {
+              console.log("Finished:", results.data);
+            }
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>

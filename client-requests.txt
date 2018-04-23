@@ -1,0 +1,32 @@
+! client has requested a "tab bar" at the top of the page to control views
+! follow angular conventions for app initialization
+! basic design -- emphasis on the data: easy to view, explore, etc
+! use any css/design framework
+
+~ client would like to be able to:
+	-> filter each view of the data by additional criteria (claim type, claim site).
+	-> add data to the dataset through an input field. required fields: Incident Date, Airport Code, Value
+	! views should update dynamically for both of these requests
+
+line plots: value lost per month (close-amount; column 10) by airline (airline-name; column 6) for all three years (date-received; column 2)
+	-> there are 179 unique airlines
+	-> determine break-points for close amount
+
+bar graph: average claim amount per month (close amount; column 10) by airport (airport-code; column 4) for all three years (date-received; column 2). display mean and std-dev on each bar
+	-> there are 404 unique airports.
+	-> determine break-points for average (if necessary)
+
+considerations:
+	-> look for graphing libraries to utilize
+		-] Chart.js
+	-> in order to display the information on mobile, it may be best to use large panels with a "nav" style of tab navigation
+	-> on desktop, the navigation can be broken out by data view (title them, or just name the tab with the view?) with drop downs for year
+		-] on mobile, this would translate well to a collapsible accordion-style nav
+	-> 3 years of data, so separate views into panels
+	-> data assumptions: a hyphen in the data indicates "other"? 
+	-> convert xls data? is there a js library for this or will i need a csv?
+		-] papaparse to convert data to json?
+	-> on-hover tool-tip on bar graph for mean / std-dev
+
+todo:
+	-> app load : import necessary libraries : import data to json : load first view : update view with airline-name / airport (dropdown), year (tabs), or month (dropdown?) as needed
