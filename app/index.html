@@ -87,6 +87,7 @@
 
     <br />
     <button class="btn btn-primary centered" onclick="parseData();">&nbsp;click here&nbsp;</button>
+    <div class="centered" id="result"></div>
 
   </div>
 
@@ -107,20 +108,41 @@
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
   <script type="text/javascript">
+    //storage for claims data
+    var claims;
+
+    //load data on page load
     $(document).ready(function(){
       $.ajax({
         type: "GET",
         url: "claims-2010-2013_0.csv",
         dataType: "text",
         success: function(file){
+          //when the file is loaded, pass it to papaparse
           Papa.parse(file, {
+            header: true,
             complete: function(results) {
-              console.log("Finished:", results.data);
+              claims = results.data;
+              //testing purposes
+              //console.log("Finished:", claims[0]["Claim Number"]);
             }
           });
         }
       });
     });
+
+      //pass off data to worker thread
+      function parseData(){
+        worker.postMessage(claims);
+      }
+
+      //initialize worker
+      var worker = new Worker('test.js');
+
+      //when worker thread returns a message, update #result
+      worker.addEventListener('message', function(e){
+        document.getElementById('result').textContent = e.data;
+      }, false);
   </script>
 </body>
 </html>
