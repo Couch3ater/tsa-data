@@ -124,7 +124,7 @@
             complete: function(results) {
               claims = results.data;
               //testing purposes
-              //console.log("Finished:", claims[0]["Claim Number"]);
+              //console.log("Finished:", claims);
             }
           });
         }
@@ -141,7 +141,8 @@
 
       //when worker thread returns a message, update #result
       worker.addEventListener('message', function(e){
-        document.getElementById('result').textContent = e.data;
+        //document.getElementById('result').textContent = e.data;
+        console.log(e.data);
       }, false);
   </script>
 </body>
