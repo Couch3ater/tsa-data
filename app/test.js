@@ -1,31 +1,32 @@
 addEventListener('message', function(e) {
-  var claims = e.data;
-  var airlines = new Array();
-  var months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-  var claimDate, claimAmount;
 
-  //final storage
-  var linePlotData = [];
+  var csvData = e.data;
 
   /*
-    - iterate through data
-    - if the airline on the current row has not yet been added to the outer-most data store, insert ["Airline Name"] property
-    - determine which month the claim was received using ["Date Received"] property and the months Array
-    - convert ["Close Amount"] to floating point
-    - add ["Close Amount"] value to correct cell: [claim][month-array-index]
-
-    ! checking for 0 value claims during iteration
+      the Airline object contains all the claims that belong to a particular airline
   */
-  for(claim in claims){
-    claimAmount = Number(claims[claim]["Close Amount"].replace(/[^0-9\.-]+/g,""));
-    if(claimAmount != 0 && !(isNaN(claimAmount))){
-      claimDate = claims[claim]["Date Received"].split('-')[1];
-      if(!(linePlotData.includes(claims[claim]["Airline Name"].trim()))){
-        linePlotData.push(claims[claim]["Airline Name"].trim());
-      }
+  class Airline {
+    constructor(name, claims){
+      this.name = name;
+      this.claims = [claims];
     }
   }
 
+  var claims = [];
+
+  /*
+    - iterate through csv data
+    - if output data structure doesn't contain airline, create new Airline obj, push claim data
+    - if output data structure contains current airline, locate it, push claim data.
+  */
+  csvData.forEach(function(val){
+    if(!(claims.some(function(element){ return element.name == val["Airline Name"].trim() }))){
+      claims.push(new Airline(val["Airline Name"].trim(), val));
+    }else{
+      claims[claims.findIndex(item => item.name === val["Airline Name"].trim())].claims.push(val);
+    }
+  });
+  
   //return message to main
-  postMessage(linePlotData);
+  postMessage(claims);
 }, false);
