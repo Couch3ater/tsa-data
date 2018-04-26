@@ -102,8 +102,6 @@
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="app.js"></script>
-  <script src="view1/view1.js"></script>
-  <script src="view2/view2.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
@@ -132,16 +130,22 @@
       });
     });
 
-      //pass off data to worker thread
+      //pass off data to worker threads
       function parseData(){
-        worker.postMessage(claims);
+        airportWorker.postMessage(claims);
+        airlineWorker.postMessage(claims);
       }
 
-      //initialize worker
-      var worker = new Worker('test.js');
+      //initialize workers
+      var airlineWorker = new Worker('AirlineWorker.js');
+      var airportWorker = new Worker('AirportWorker.js');
 
-      //when worker thread returns a message, update #result
-      worker.addEventListener('message', function(e){
+      //when worker threads return a message, update #result
+      airlineWorker.addEventListener('message', function(e){
+        //document.getElementById('result').textContent = e.data;
+        console.log(e.data);
+      }, false);
+      airportWorker.addEventListener('message', function(e){
         //document.getElementById('result').textContent = e.data;
         console.log(e.data);
       }, false);
