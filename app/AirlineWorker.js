@@ -21,6 +21,10 @@ addEventListener('message', function(e) {
       this.value = [value];
       this.sum = sum;
     }
+
+    updateSum(val){
+      this.sum += val;
+    }
   }
 
   var airlineClaims = [];
@@ -58,36 +62,40 @@ addEventListener('message', function(e) {
         case "10" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airline.yr2010.some(function(element){ return element.month === month }))){
-              airline.yr2010.push(new MonthlyClaim(month, claimAmnt));
+              airline.yr2010.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airline.yr2010[airline.yr2010.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airline.yr2010[airline.yr2010.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;
         case "11" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airline.yr2011.some(function(element){ return element.month === month }))){
-              airline.yr2011.push(new MonthlyClaim(month, claimAmnt));
+              airline.yr2011.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airline.yr2011[airline.yr2011.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airline.yr2011[airline.yr2011.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;
         case "12" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airline.yr2012.some(function(element){ return element.month === month }))){
-              airline.yr2012.push(new MonthlyClaim(month, claimAmnt));
+              airline.yr2012.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airline.yr2012[airline.yr2012.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airline.yr2012[airline.yr2012.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;
         case "13" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airline.yr2013.some(function(element){ return element.month === month }))){
-              airline.yr2013.push(new MonthlyClaim(month, claimAmnt));
+              airline.yr2013.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airline.yr2013[airline.yr2013.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airline.yr2013[airline.yr2013.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;

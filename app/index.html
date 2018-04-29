@@ -14,13 +14,11 @@
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
 
-  <!-- app styles -->
-  <link rel="stylesheet" href="app.css">
-
   <!-- js pre-load -->
   <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.min.js"></script>
   <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
 
   <!-- spectre css -->
   <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
@@ -32,17 +30,17 @@
 
     <!-- tab group -->
     <ul class="tab tab-block">
-      <li class="tab-item active">
-        <a href="#" id="yr2010">2010</a>
+      <li class="tab-item active" id="yr2010">
+        <a href="#">2010</a>
       </li>
-      <li class="tab-item">
-        <a href="#" id="yr2011">2011</a>
+      <li class="tab-item" id="yr2011">
+        <a href="#">2011</a>
       </li>
-      <li class="tab-item">
-        <a href="#" id="yr2012">2012</a>
+      <li class="tab-item" id="yr2012">
+        <a href="#">2012</a>
       </li>
-      <li class="tab-item">
-        <a href="#" id="yr2013">2013</a>
+      <li class="tab-item" id="yr2013">
+        <a href="#">2013</a>
       </li>
     </ul>
 
@@ -55,12 +53,15 @@
             <div class="panel-title">Value Lost Per Month</div>
           </div>
           <div class="panel-body centered">
-            <p>table goes here</p>
+
+            <!-- line graph -->
+            <canvas id="lineChart" width="800" height="400"></canvas>
+
+
           </div>
           <div class="panel-footer centered">
             <select id="airlineSelect">
               <option>Choose an airline</option>
-              <option>AIRLINE NAME</option>
             </select>
           </div>
         </div>
@@ -73,21 +74,20 @@
             <div class="panel-title">Average Claim Amount Per Month</div>
           </div>
           <div class="panel-body centered">
-            <p>table goes here</p>
+
+            <!-- bar graph -->
+            <canvas id="barChart" width="800" height="400"></canvas>
+
+
           </div>
           <div class="panel-footer centered">
             <select id="airportSelect">
               <option>Choose an airport</option>
-              <option>AIRPORT NAMES</option>
             </select>
           </div>
         </div>
       </div>
     </div>
-
-    <br />
-    <button class="btn btn-primary centered" onclick="parseData();">&nbsp;click here&nbsp;</button>
-    <div class="centered" id="result"></div>
 
   </div>
 
@@ -101,13 +101,21 @@
 
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="bower_components/chart.js/dist/Chart.min.js"></script>
   <script src="app.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
   <script type="text/javascript">
-    //storage for claims data
-    var claims;
+    //set up variables that you may need
+    var airlineSel = document.getElementById("airlineSelect");
+    var airportSel = document.getElementById("airportSelect");
+    var tab10 = document.getElementById("yr2010");
+    var tab11 = document.getElementById("yr2011");
+    var tab12 = document.getElementById("yr2012");
+    var tab13 = document.getElementById("yr2013");
+    var yearSel = "10";
+    var airlineData, airportData, lineChartData, barChartData;
 
     //load data on page load
     $(document).ready(function(){
@@ -120,35 +128,615 @@
           Papa.parse(file, {
             header: true,
             complete: function(results) {
-              claims = results.data;
-              //testing purposes
-              console.log("Finished:", claims);
-              //console.log("Finished:", claims[0]["Date Received"].split('-')[1]);
+              parseData(results.data);
             }
           });
         }
       });
-    });
+
+      //initialize workers to parse data
+      var airlineWorker = new Worker('AirlineWorker.js');
+      var airportWorker = new Worker('AirportWorker.js');
 
       //pass off data to worker threads
-      function parseData(){
+      function parseData(claims){
         airportWorker.postMessage(claims);
         airlineWorker.postMessage(claims);
       }
 
-      //initialize workers
-      var airlineWorker = new Worker('AirlineWorker.js');
-      var airportWorker = new Worker('AirportWorker.js');
-
-      //when worker threads return a message, update #result
+      //when worker threads return a message, DO STUFF THAT NEEDS TO BE DONE
+      /*
+          - populate dropdowns with airline names / airport codes
+      */
       airlineWorker.addEventListener('message', function(e){
-        //document.getElementById('result').textContent = e.data;
-        console.log(e.data);
+        airlineData = e.data;
+        airlineData.forEach(function(airline){
+          option = document.createElement('option');
+          option.value = option.text = airline.name;
+          airlineSel.add(option);
+        });
+        console.log("Airline data:\n");
+        console.log(airlineData);
       }, false);
       airportWorker.addEventListener('message', function(e){
-        //document.getElementById('result').textContent = e.data;
-        console.log(e.data);
+        airportData = e.data;
+        airportData.forEach(function(airport){
+          option = document.createElement('option');
+          option.value = option.text = airport.name;
+          airportSel.add(option);
+        });
+        console.log("Airport data:\n");
+        console.log(airportData);
       }, false);
+    });
+
+    //lineChart code
+    var lineCanvas = document.getElementById("lineChart");
+    var lineChart = new Chart(lineCanvas, {
+        type: 'line',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            datasets: [{
+                label: 'Total value lost per month.',
+                data: [],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+
+    //barChart code
+    var barCanvas = document.getElementById("barChart");
+    var barChart = new Chart(barCanvas, {
+        type: 'bar',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            datasets: [{
+                label: 'Average value lost per month.',
+                data: [],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(26, 31, 22, 0.2)',
+                    'rgba(197, 33, 132, 0.2)',
+                    'rgba(51, 32, 42, 0.2)',
+                    'rgba(138, 234, 146, 0.2)',
+                    'rgba(25, 23, 22, 0.2)',
+                    'rgba(61, 52, 139, 0.2)'
+
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(26, 31, 22, 1)',
+                    'rgba(197, 33, 132, 1)',
+                    'rgba(51, 32, 42, 1)',
+                    'rgba(138, 234, 146, 1)',
+                    'rgba(25, 23, 22, 1)',
+                    'rgba(61, 52, 139, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+
+    //event listeners for tab group
+    tab10.addEventListener("click", function(){
+      yearSel = "10";
+      if(!(this.classList.contains('active'))){
+        this.classList.toggle('active');
+        if(tab11.classList.contains('active')){ tab11.classList.toggle('active'); }
+        if(tab12.classList.contains('active')){ tab12.classList.toggle('active'); }
+        if(tab13.classList.contains('active')){ tab13.classList.toggle('active'); }
+
+        //update data
+        if(lineChartData != undefined){
+          lineChartData = airlineData[airlineData.findIndex(item => item.name === airlineSel.value)];
+          switch(yearSel){
+            case "10" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "11" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "12" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "13" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+
+        if(barChartData != undefined){
+          barChartData = airportData[airportData.findIndex(item => item.name === airportSel.value)];
+          switch(yearSel){
+            case "10" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "11" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "12" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "13" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+      }
+    });
+    tab11.addEventListener("click", function(){
+      yearSel = "11";
+      if(!(this.classList.contains('active'))){
+        this.classList.toggle('active');
+        if(tab10.classList.contains('active')){ tab10.classList.toggle('active'); }
+        if(tab12.classList.contains('active')){ tab12.classList.toggle('active'); }
+        if(tab13.classList.contains('active')){ tab13.classList.toggle('active'); }
+
+        //update data
+        if(lineChartData != undefined){
+          lineChartData = airlineData[airlineData.findIndex(item => item.name === airlineSel.value)];
+          switch(yearSel){
+            case "10" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "11" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "12" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "13" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+
+        if(barChartData != undefined){
+          barChartData = airportData[airportData.findIndex(item => item.name === airportSel.value)];
+          switch(yearSel){
+            case "10" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "11" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "12" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "13" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+      }
+    });
+    tab12.addEventListener("click", function(){
+      yearSel = "12";
+      if(!(this.classList.contains('active'))){
+        this.classList.toggle('active');
+        if(tab10.classList.contains('active')){ tab10.classList.toggle('active'); }
+        if(tab11.classList.contains('active')){ tab11.classList.toggle('active'); }
+        if(tab13.classList.contains('active')){ tab13.classList.toggle('active'); }
+
+        //update data
+        if(lineChartData != undefined){
+          lineChartData = airlineData[airlineData.findIndex(item => item.name === airlineSel.value)];
+          switch(yearSel){
+            case "10" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "11" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "12" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "13" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+
+        if(barChartData != undefined){
+          barChartData = airportData[airportData.findIndex(item => item.name === airportSel.value)];
+          switch(yearSel){
+            case "10" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "11" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "12" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "13" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+      }
+    });
+    tab13.addEventListener("click", function(){
+      yearSel = "13";
+      if(!(this.classList.contains('active'))){
+        this.classList.toggle('active');
+        if(tab10.classList.contains('active')){ tab10.classList.toggle('active'); }
+        if(tab11.classList.contains('active')){ tab11.classList.toggle('active'); }
+        if(tab12.classList.contains('active')){ tab12.classList.toggle('active'); }
+
+        //update data
+        if(lineChartData != undefined){
+          lineChartData = airlineData[airlineData.findIndex(item => item.name === airlineSel.value)];
+          switch(yearSel){
+            case "10" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "11" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "12" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            case "13" :
+              lineChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                lineChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.sum);
+                });
+              });
+              lineChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+
+        if(barChartData != undefined){
+          barChartData = airportData[airportData.findIndex(item => item.name === airportSel.value)];
+          switch(yearSel){
+            case "10" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2010.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "11" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2011.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "12" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2012.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            case "13" :
+              barChart.data.datasets.forEach((dataset) => {
+                dataset.data.length = 0;
+                barChartData.yr2013.forEach((month) => {
+                  dataset.data.push(month.avg);
+                });
+              });
+              barChart.update();
+              break;
+            default :
+              break;
+          }
+        }
+      }
+    });
+
+    //event listeners for dropdowns
+    airlineSel.addEventListener("change", function(){
+      lineChartData = airlineData[airlineData.findIndex(item => item.name === this.value)];
+      switch(yearSel){
+        case "10" :
+          lineChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            lineChartData.yr2010.forEach((month) => {
+              dataset.data.push(month.sum);
+            });
+          });
+          lineChart.update();
+          break;
+        case "11" :
+          lineChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            lineChartData.yr2011.forEach((month) => {
+              dataset.data.push(month.sum);
+            });
+          });
+          lineChart.update();
+          break;
+        case "12" :
+          lineChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            lineChartData.yr2012.forEach((month) => {
+              dataset.data.push(month.sum);
+            });
+          });
+          lineChart.update();
+          break;
+        case "13" :
+          lineChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            lineChartData.yr2013.forEach((month) => {
+              dataset.data.push(month.sum);
+            });
+          });
+          lineChart.update();
+          break;
+        default :
+          break;
+      }
+    });
+
+    airportSel.addEventListener("change", function(){
+      barChartData = airportData[airportData.findIndex(item => item.name === this.value)];
+      switch(yearSel){
+        case "10" :
+          barChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            barChartData.yr2010.forEach((month) => {
+              dataset.data.push(month.avg);
+            });
+          });
+          barChart.update();
+          break;
+        case "11" :
+          barChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            barChartData.yr2011.forEach((month) => {
+              dataset.data.push(month.avg);
+            });
+          });
+          barChart.update();
+          break;
+        case "12" :
+          barChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            barChartData.yr2012.forEach((month) => {
+              dataset.data.push(month.avg);
+            });
+          });
+          barChart.update();
+          break;
+        case "13" :
+          barChart.data.datasets.forEach((dataset) => {
+            dataset.data.length = 0;
+            barChartData.yr2013.forEach((month) => {
+              dataset.data.push(month.avg);
+            });
+          });
+          barChart.update();
+          break;
+        default :
+          break;
+      }
+    });
+
+
+
+    
   </script>
 </body>
 </html>

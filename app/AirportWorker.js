@@ -16,10 +16,24 @@ addEventListener('message', function(e) {
     }
   }
   class MonthlyClaim {
-    constructor(month, value, avg){
+    constructor(month, value, sum, avg){
       this.month = month;
       this.value = [value];
-      this.avg = avg;
+      this.sum = sum;
+      this.avg = 0;
+    }
+
+    updateSum(val){
+      this.sum += val;
+    }
+
+    calcAvg(){
+      this.avg = this.sum / this.value.length;
+
+      /*  
+          ?? stringified version of average for display purposes??
+          this.avg = (this.sum / this.value.length).toFixed(2);
+      */
     }
   }
 
@@ -27,9 +41,9 @@ addEventListener('message', function(e) {
   var year, month, claimAmnt, claimDate;
 
   /*
-    iterate through csv data;
-    if output data structure doesn't contain airport, create new Airport obj, push claim data;
-    if output data structure contains current airport, locate it, push claim data;
+      iterate through csv data;
+      if output data structure doesn't contain airport, create new Airport obj, push claim data;
+      if output data structure contains current airport, locate it, push claim data;
   */
   csvData.forEach(function(val){
     if(!(airportClaims.some(function(element){ return element.name === val["Airport Code"].trim() }))){
@@ -58,36 +72,40 @@ addEventListener('message', function(e) {
         case "10" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airport.yr2010.some(function(element){ return element.month === month }))){
-              airport.yr2010.push(new MonthlyClaim(month, claimAmnt));
+              airport.yr2010.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airport.yr2010[airport.yr2010.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airport.yr2010[airport.yr2010.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;
         case "11" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airport.yr2011.some(function(element){ return element.month === month }))){
-              airport.yr2011.push(new MonthlyClaim(month, claimAmnt));
+              airport.yr2011.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airport.yr2011[airport.yr2011.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airport.yr2011[airport.yr2011.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;
         case "12" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airport.yr2012.some(function(element){ return element.month === month }))){
-              airport.yr2012.push(new MonthlyClaim(month, claimAmnt));
+              airport.yr2012.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airport.yr2012[airport.yr2012.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airport.yr2012[airport.yr2012.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;
         case "13" :
           if(claimAmnt != 0 && !(isNaN(claimAmnt))){
             if(!(airport.yr2013.some(function(element){ return element.month === month }))){
-              airport.yr2013.push(new MonthlyClaim(month, claimAmnt));
+              airport.yr2013.push(new MonthlyClaim(month, claimAmnt, claimAmnt));
             }else{
               airport.yr2013[airport.yr2013.findIndex(item => item.month === month)].value.push(claimAmnt);
+              airport.yr2013[airport.yr2013.findIndex(item => item.month === month)].updateSum(claimAmnt);
             }
           }
           break;
@@ -95,6 +113,12 @@ addEventListener('message', function(e) {
           break;
       }
     });
+
+    //  update average here
+    airport.yr2010.forEach(function(month){ month.calcAvg(); });
+    airport.yr2011.forEach(function(month){ month.calcAvg(); });
+    airport.yr2012.forEach(function(month){ month.calcAvg(); });
+    airport.yr2013.forEach(function(month){ month.calcAvg(); });
   });
 
 
@@ -106,6 +130,6 @@ addEventListener('message', function(e) {
   airportClaims[airportClaims.findIndex(item => item.name === "-")].name = "Unknown";
   airportClaims.splice(-1, airportClaims.length-1);
   
-  //return message to main
+  //  return message to main
   postMessage(airportClaims);
 }, false);
