@@ -20,9 +20,14 @@ At this point, open a web browser and navigate to:
 * Refactor code:
 	* Create functions for repeated code
 	* Move event listeners out of index.html
+	* Disable index.html `select` until worker threads return parsed data
 	* Angular-ize app
 * Fix **Airline.yr** arrays to length of 12
 	* Put month data into the correct index so that graphs properly display when a month had claims totaling $0.00
 * Truncate / round sum and avg values of MonthlyClaim objects
 * Include STD-DEV and mean for each MonthlyClaim avg
 * Calculate average monthly loss across all airlines
+* Comment code that has not already been commented
+* Update table formatting:
+	* Legend
+	* Axis labels
