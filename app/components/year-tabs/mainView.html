@@ -1,0 +1,68 @@
+<!-- tab group -->
+<!--
+      update to utilize an angular ng-repeat for each item?
+-->
+<ul class="tab tab-block">
+  <li class="tab-item active" id="yr2010">
+    <a href="#">2010</a>
+  </li>
+  <li class="tab-item" id="yr2011">
+    <a href="#">2011</a>
+  </li>
+  <li class="tab-item" id="yr2012">
+    <a href="#">2012</a>
+  </li>
+  <li class="tab-item" id="yr2013">
+    <a href="#">2013</a>
+  </li>
+</ul>
+
+<!-- value lost per month -->
+<div class="column col-12">
+  <div class="panel">
+    <div class="panel-header centered">
+      <div class="panel-title">Value Lost Per Month</div>
+    </div>
+    <div class="panel-body centered">
+
+      <!-- line graph -->
+      <canvas id="lineChart" width="800" height="400"></canvas>
+
+
+    </div>
+    <div class="panel-footer centered">
+      <select ng-model="selectedAirline" ng-options="x for x in airlines">
+      
+      <!--
+            <select id="airlineSelect">
+              <option>Choose an airline</option>
+            </select>
+      -->
+    </div>
+  </div>
+</div>
+
+<!-- average claim per airport -->
+<div class="column col-12">
+  <div class="panel">
+    <div class="panel-header centered">
+      <div class="panel-title">Average Claim Amount Per Month</div>
+    </div>
+    <div class="panel-body centered">
+
+      <!-- bar graph -->
+      <canvas id="barChart" width="800" height="400"></canvas>
+
+
+    </div>
+    <div class="panel-footer centered">
+      <select ng-model="selectedAirport" ng-options="x for x in airports">
+
+      <!--
+            <select id="airportSelect">
+              <option>Choose an airport</option>
+            </select>
+      -->
+    </div>
+  </div>
+</div>

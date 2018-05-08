@@ -5,7 +5,7 @@ var airportSel = document.getElementById("airportSelect");
 $(document).ready(function(){
   $.ajax({
     type: "GET",
-    url: "../assets/data/claims-2010-2013_0.csv",
+    url: "assets/data/claims-2010-2013_0.csv",
     dataType: "text",
     success: function(file){
       //when the file is loaded, pass it to papaparse
@@ -19,8 +19,8 @@ $(document).ready(function(){
   });
 
   //initialize workers to parse data
-  var airlineWorker = new Worker('../assets/js/AirlineWorker.js');
-  var airportWorker = new Worker('../assets/js/AirportWorker.js');
+  var airlineWorker = new Worker('assets/js/AirlineWorker.js');
+  var airportWorker = new Worker('assets/js/AirportWorker.js');
 
   //pass off data to worker threads
   function parseData(claims){
