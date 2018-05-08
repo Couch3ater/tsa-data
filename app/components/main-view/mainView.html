@@ -32,12 +32,8 @@
     </div>
     <div class="panel-footer centered">
       <select ng-model="selectedAirline" ng-options="x for x in airlines">
-      
-      <!--
-            <select id="airlineSelect">
-              <option>Choose an airline</option>
-            </select>
-      -->
+        <option value="" disabled selected>Please Select an Airline.</option>
+      </select>
     </div>
   </div>
 </div>
@@ -57,12 +53,8 @@
     </div>
     <div class="panel-footer centered">
       <select ng-model="selectedAirport" ng-options="x for x in airports">
-
-      <!--
-            <select id="airportSelect">
-              <option>Choose an airport</option>
-            </select>
-      -->
+        <option value="" disabled selected>Please Select an Airport.</option>
+      </select>
     </div>
   </div>
 </div>
