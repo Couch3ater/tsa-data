@@ -9,7 +9,7 @@ config(['$locationProvider', '$routeProvider', function($locationProvider, $rout
 
   $routeProvider.
   	when('/',{
-  		templateUrl:'/components/year-tabs/tabView.html',
+  		templateUrl:'/components/main-view/mainView.html',
   		controller: 'dataCtrl'
   	});
   //$routeProvider.otherwise({redirectTo: '/view1'});
