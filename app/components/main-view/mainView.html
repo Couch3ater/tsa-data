@@ -26,7 +26,7 @@
     <div class="panel-body centered">
 
       <!-- line graph -->
-      <canvas id="lineChart" width="800" height="400"></canvas>
+      <div ng-include="'components/line-view/lineView.html'" ng-controller="lineCtrl"></div>
 
 
     </div>
@@ -47,7 +47,7 @@
     <div class="panel-body centered">
 
       <!-- bar graph -->
-      <canvas id="barChart" width="800" height="400"></canvas>
+      <div ng-include="'components/bar-view/barView.html'" ng-controller="barCtrl"></div>
 
 
     </div>
