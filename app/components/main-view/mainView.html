@@ -19,19 +19,18 @@
 
 <!-- value lost per month -->
 <div class="column col-12">
-  <div class="panel">
+  <div class="panel" ng-controller="lineCtrl">
     <div class="panel-header centered">
       <div class="panel-title">Value Lost Per Month</div>
     </div>
     <div class="panel-body centered">
 
       <!-- line graph -->
-      <div ng-include="'components/line-view/lineView.html'" ng-controller="lineCtrl"></div>
-
+      <div ng-include="'components/line-view/lineView.html'"></div>
 
     </div>
     <div class="panel-footer centered">
-      <select ng-model="selectedAirline" ng-options="x for x in airlines">
+      <select ng-model="selectedAirline" ng-options="airline for airline in airlines" ng-change="airlineChanged(selectedAirline)">
         <option value="" disabled selected>Please Select an Airline.</option>
       </select>
     </div>
@@ -40,19 +39,18 @@
 
 <!-- average claim per airport -->
 <div class="column col-12">
-  <div class="panel">
+  <div class="panel" ng-controller="barCtrl">
     <div class="panel-header centered">
       <div class="panel-title">Average Claim Amount Per Month</div>
     </div>
     <div class="panel-body centered">
 
       <!-- bar graph -->
-      <div ng-include="'components/bar-view/barView.html'" ng-controller="barCtrl"></div>
-
+      <div ng-include="'components/bar-view/barView.html'"></div>
 
     </div>
     <div class="panel-footer centered">
-      <select ng-model="selectedAirport" ng-options="x for x in airports">
+      <select ng-model="selectedAirport" ng-options="airport for airport in airports" ng-change="airportChanged(selectedAirport)">
         <option value="" disabled selected>Please Select an Airport.</option>
       </select>
     </div>
