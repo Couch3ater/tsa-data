@@ -5,7 +5,7 @@ angular.module("lineView", [
 ])
 
 .controller("lineCtrl", function ($scope) {
-
+  $scope.airline;
   $scope.labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   $scope.data = [0,0,0,0,0,0,0,0,0,0,0,0];
   $scope.onClick = function (points, evt) {
@@ -26,6 +26,7 @@ angular.module("lineView", [
   };
 
   $scope.airlineChanged = function(airline){
+    $scope.airline = airline;
     $scope.lineChartData = [airlineData[airlineData.findIndex(item => item.name === airline)]];
     switch($scope.$parent.yrSelect){
       case "10" :
@@ -61,5 +62,9 @@ angular.module("lineView", [
         });
         break;
     }
+  }
+
+  $scope.airline.update = function(){
+    $scope.airlineChanged($scope.airline);
   }
 });

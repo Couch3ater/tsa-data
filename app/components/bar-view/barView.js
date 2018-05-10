@@ -5,11 +5,8 @@ angular.module("barView", [
 ])
 
 .controller("barCtrl", function ($scope) {
-
   $scope.labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  $scope.data = [
-    [65, 59, 80, 81, 56, 55, 40, 28, 48, 40, 19, 86, 27]
-  ];
+  $scope.data = [0,0,0,0,0,0,0,0,0,0,0,0];
   $scope.onClick = function (points, evt) {
     console.log(points, evt);
   };
@@ -29,6 +26,39 @@ angular.module("barView", [
 
   $scope.airportChanged = function(airport){
     $scope.barChartData = [airportData[airportData.findIndex(item => item.name === airport)]];
-    console.log($scope.barChartData);
+    switch($scope.$parent.yrSelect){
+      case "10" :
+        $scope.data.length = 0;
+        angular.forEach($scope.barChartData, function(yr){
+          angular.forEach(yr.yr2010, function(month){
+            $scope.data.push(month.sum);
+          });
+        });
+        break;
+      case "11" :
+        $scope.data.length = 0;
+        angular.forEach($scope.barChartData, function(yr){
+          angular.forEach(yr.yr2011, function(month){
+            $scope.data.push(month.sum);
+          });
+        });
+        break;
+      case "12" :
+        $scope.data.length = 0;
+        angular.forEach($scope.barChartData, function(yr){
+          angular.forEach(yr.yr2012, function(month){
+            $scope.data.push(month.sum);
+          });
+        });
+        break;
+      case "13" :
+        $scope.data.length = 0;
+        angular.forEach($scope.barChartData, function(yr){
+          angular.forEach(yr.yr2013, function(month){
+            $scope.data.push(month.sum);
+          });
+        });
+        break;
+    }
   }
 });

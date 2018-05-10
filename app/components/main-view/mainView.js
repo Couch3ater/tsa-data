@@ -7,6 +7,7 @@ angular.module('mainView', [
 ])
 
 .controller('mainCtrl', function($scope){
+  $scope.airline = {};
   $scope.airlines = [];
   $scope.airports = [];
   $scope.yrSelect = '10';
@@ -48,11 +49,6 @@ angular.module('mainView', [
         airlineData = e.data;
         airlineData.forEach(function(airline){
           $scope.airlines.push(airline.name);
-          /*
-          option = document.createElement('option');
-          option.value = option.text = airline.name;
-          airlineSel.add(option);
-          */
         });
         console.log("Airline data:\n");
         console.log(airlineData);
@@ -60,16 +56,22 @@ angular.module('mainView', [
       airportWorker.addEventListener('message', function(e){
         airportData = e.data;
         airportData.forEach(function(airport){
-        $scope.airports.push(airport.name);
-          /*
-          option = document.createElement('option');
-          option.value = option.text = airport.name;
-          airportSel.add(option);
-          */
+          $scope.airports.push(airport.name);
         });
         console.log("Airport data:\n");
         console.log(airportData);
       }, false);
     });
   });
+})
+
+.directive('tabClicked', function(){
+  return{
+    link: function($scope, elem, attr){
+      elem.bind('click', function(){
+        $scope.yrSelect = attr.id.substring(event.target.parentNode.id.length - 2);
+        $scope.airline.update();
+      });
+    }
+  }
 });
